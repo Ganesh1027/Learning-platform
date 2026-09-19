@@ -1,0 +1,16 @@
+{
+  "name": "ultimate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run install-all && npm run build-client",
+    "install-all": "npm install --prefix client && npm install --prefix server",
+    "build-client": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
