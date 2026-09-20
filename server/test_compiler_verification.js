@@ -50,7 +50,24 @@ async function testCompiler() {
     console.log('  Test 1 Result:', goodJSRes.results[0].passed ? 'PASS' : 'FAIL');
     console.log('  Actual Output:', goodJSRes.results[0].actual);
 
-    if (!badPythonRes.allPassed && goodPythonRes.allPassed && goodJSRes.allPassed) {
+    // 4. Test Custom Function Name (def fizzBuzz(n) with camelCase)
+    const customFnPythonRes = await fetch('http://localhost:5000/api/practice/run-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: 'def fizzBuzz(n):\n    return ["1","2","Fizz","4","Buzz"]',
+        language: 'python',
+        problemId: 'prob_5',
+        fnName: 'fizzbuzz_classic'
+      })
+    }).then(r => r.json());
+
+    console.log('\n[Test 4] Python Custom Function Name (def fizzBuzz(n)):');
+    console.log('  All Passed:', customFnPythonRes.allPassed, '(Expected: true)');
+    console.log('  Test 1 Result:', customFnPythonRes.results[0].passed ? 'PASS' : 'FAIL');
+    console.log('  Actual Output:', customFnPythonRes.results[0].actual);
+
+    if (!badPythonRes.allPassed && goodPythonRes.allPassed && goodJSRes.allPassed && customFnPythonRes.allPassed) {
       console.log('\n🎉 COMPILER VERIFICATION TEST PASSED WITH 100% ACCURACY!');
     } else {
       console.log('\n❌ COMPILER VERIFICATION TEST FAILED');

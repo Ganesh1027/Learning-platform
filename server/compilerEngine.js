@@ -44,12 +44,9 @@ export function executeJavaScript(code, fnName, rawInput, expectedOutput) {
   try {
     const context = vm.createContext(sandbox);
     
-    // Auto-detect function name if not explicitly provided
-    let targetFn = fnName;
-    if (!targetFn) {
-      const match = code.match(/function\s+([a-zA-Z0-9_$]+)/);
-      if (match) targetFn = match[1];
-    }
+    // Extract actual function name defined in user's submitted code first
+    const jsMatch = code.match(/(?:function|const|let|var)\s+([a-zA-Z0-9_$]+)/);
+    const targetFn = jsMatch ? jsMatch[1] : fnName;
 
     const scriptCode = `
       ${code}
@@ -94,11 +91,9 @@ export function executePython(code, fnName, rawInput, expectedOutput) {
   }
 
   return new Promise((resolve) => {
-    let targetFn = fnName;
-    if (!targetFn) {
-      const match = code.match(/def\s+([a-zA-Z0-9_$]+)/);
-      if (match) targetFn = match[1];
-    }
+    // Extract actual function name defined in user's submitted code first
+    const pyMatch = code.match(/def\s+([a-zA-Z0-9_$]+)\s*\(/);
+    const targetFn = pyMatch ? pyMatch[1] : fnName;
 
     const tmpDir = os.tmpdir();
     const scriptPath = path.join(tmpDir, `py_exec_${Date.now()}_${Math.random().toString(36).substr(2, 4)}.py`);
@@ -109,11 +104,14 @@ import sys, json
 ${code}
 
 try:
-    res = ${targetFn}(${rawInput})
-    if res is not None:
-        print("__RESULT__:" + json.dumps(res))
+    if '${targetFn}' in globals() and callable(globals()['${targetFn}']):
+        res = globals()['${targetFn}'](${rawInput})
+        if res is not None:
+            print("__RESULT__:" + json.dumps(res))
+        else:
+            print("__RESULT__:__NONE__")
     else:
-        print("__RESULT__:__NONE__")
+        print("__ERROR__: Function '${targetFn}' was not found in your submitted code. Please define '${targetFn}' or a valid function.")
 except Exception as e:
     print("__ERROR__:" + str(e))
 `;
@@ -172,11 +170,8 @@ except Exception as e:
 function executePythonFallback(code, fnName, rawInput, expectedOutput) {
   // Simple Python string manipulation & return parser fallback
   try {
-    let targetFn = fnName;
-    if (!targetFn) {
-      const match = code.match(/def\s+([a-zA-Z0-9_$]+)/);
-      if (match) targetFn = match[1];
-    }
+    const pyMatch = code.match(/def\s+([a-zA-Z0-9_$]+)\s*\(/);
+    const targetFn = pyMatch ? pyMatch[1] : fnName;
 
     let actualVal = undefined;
     
