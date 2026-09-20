@@ -407,6 +407,38 @@ class Database {
     return newUser;
   }
 
+  findOrCreateGoogleUser({ email, name, uid }) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    let user = this.data.users.find(u => u.email === email || u.googleId === uid || u.username.toLowerCase() === (email ? email.split('@')[0].toLowerCase() : ''));
+
+    if (user) {
+      if (!user.googleId) user.googleId = uid;
+      if (!user.email) user.email = email;
+      this.updateUserStreak(user.id);
+      this.save();
+      return user;
+    }
+
+    const username = email ? email.split('@')[0] : `user_${Date.now().toString(36)}`;
+    user = {
+      id: `usr_g_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      googleId: uid,
+      email: email || '',
+      username: username,
+      password_hash: '',
+      name: name || username,
+      role: 'user',
+      streak: 1,
+      lastActiveDate: todayStr,
+      solvedProblems: [],
+      created_at: new Date().toISOString()
+    };
+
+    this.data.users.push(user);
+    this.save();
+    return user;
+  }
+
   updateUserStreak(id) {
     const user = this.findUserById(id);
     if (!user) return null;

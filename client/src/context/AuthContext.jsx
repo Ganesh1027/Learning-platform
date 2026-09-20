@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
 
 const AuthContext = createContext(null);
 
@@ -68,6 +70,34 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          uid: firebaseUser.uid
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+
+      localStorage.setItem('hub_admin_token', data.token);
+      setToken(data.token);
+      setUser(data.user);
+      return data.user;
+    } catch (err) {
+      console.error('Google Auth Error:', err);
+      throw new Error(err.message || 'Google Sign-In failed');
+    }
+  };
+
   const markProblemAsSolved = async (problemId) => {
     if (!user || !token) return;
 
@@ -108,7 +138,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, markProblemAsSolved, isAuthenticated: Boolean(user) }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout, markProblemAsSolved, isAuthenticated: Boolean(user) }}>
       {children}
     </AuthContext.Provider>
   );

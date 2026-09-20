@@ -38,7 +38,34 @@ router.post('/register', (req, res) => {
       name: newUser.name,
       role: newUser.role,
       streak: newUser.streak || 1,
-      solvedProblems: newUser.solvedProblems || []
+    }
+  });
+});
+
+// Google Sign-In Endpoint
+router.post('/google', (req, res) => {
+  const { email, name, uid } = req.body;
+  if (!uid) {
+    return res.status(400).json({ error: 'Google authentication details missing' });
+  }
+
+  const user = db.findOrCreateGoogleUser({ email, name, uid });
+  const token = jwt.sign(
+    { id: user.id, username: user.username, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+
+  return res.json({
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      streak: user.streak || 1,
+      solvedProblems: user.solvedProblems || []
     }
   });
 });
