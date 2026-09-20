@@ -1,8 +1,12 @@
 import React from 'react';
-import { ExternalLink, Code2, Sparkles, ChevronRight } from 'lucide-react';
+import { ExternalLink, Code2, Sparkles, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProblemCard({ problem, onSelectProblem }) {
-  const { title, type, leetcodeNumber, leetcodeUrl, difficulty, topic, headingName, isTodaysChallenge } = problem;
+  const { user } = useAuth();
+  const { id, title, type, leetcodeNumber, leetcodeUrl, difficulty, topic, headingName, isTodaysChallenge } = problem;
+
+  const isSolved = user?.solvedProblems?.includes(id);
 
   const difficultyStyles = {
     Easy: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
@@ -13,7 +17,9 @@ export default function ProblemCard({ problem, onSelectProblem }) {
   const badgeClass = difficultyStyles[difficulty] || difficultyStyles.Easy;
 
   return (
-    <div className="glass-card glass-card-hover rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-800 relative group">
+    <div className={`glass-card glass-card-hover rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border relative group transition-all ${
+      isSolved ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-slate-800'
+    }`}>
       
       {/* Today's Challenge Accent Indicator */}
       {isTodaysChallenge && (
@@ -25,6 +31,15 @@ export default function ProblemCard({ problem, onSelectProblem }) {
 
       <div className="space-y-1.5 flex-1">
         <div className="flex flex-wrap items-center gap-2">
+          
+          {/* Solved Tick Badge */}
+          {isSolved && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-sm">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Solved</span>
+            </span>
+          )}
+
           {/* Problem Type Tag */}
           {type === 'leetcode' ? (
             <span className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30 flex items-center gap-1">
@@ -56,8 +71,9 @@ export default function ProblemCard({ problem, onSelectProblem }) {
         </div>
 
         {/* Title */}
-        <h4 className="text-base font-bold text-white group-hover:text-brand-300 transition-colors cursor-pointer" onClick={() => onSelectProblem(problem)}>
-          {title}
+        <h4 className="text-base font-bold text-white group-hover:text-brand-300 transition-colors cursor-pointer flex items-center gap-2" onClick={() => onSelectProblem(problem)}>
+          <span>{title}</span>
+          {isSolved && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
         </h4>
       </div>
 

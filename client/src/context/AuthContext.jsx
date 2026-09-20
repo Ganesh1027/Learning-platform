@@ -50,6 +50,57 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  const register = async (username, password, name) => {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, name })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Registration failed');
+    }
+
+    localStorage.setItem('hub_admin_token', data.token);
+    setToken(data.token);
+    setUser(data.user);
+    return data.user;
+  };
+
+  const markProblemAsSolved = async (problemId) => {
+    if (!user || !token) return;
+
+    // Optimistically update solved state locally
+    setUser(prev => {
+      if (!prev) return prev;
+      const solved = prev.solvedProblems || [];
+      if (solved.includes(problemId)) return prev;
+      return {
+        ...prev,
+        solvedProblems: [...solved, problemId]
+      };
+    });
+
+    try {
+      const res = await fetch('/api/auth/solve-problem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ problemId })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.user) {
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error('Error recording solved problem:', err);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('hub_admin_token');
     setToken('');
@@ -57,7 +108,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: Boolean(user) }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, markProblemAsSolved, isAuthenticated: Boolean(user) }}>
       {children}
     </AuthContext.Provider>
   );

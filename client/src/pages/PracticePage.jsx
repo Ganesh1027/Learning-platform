@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Terminal, Search, Filter, Sparkles, Code2, Flame, Layers, ChevronDown } from 'lucide-react';
+import { Terminal, Search, Filter, Sparkles, Code2, Flame, Layers, ChevronDown, CheckCircle2 } from 'lucide-react';
 import ProblemCard from '../components/ProblemCard';
 import CodeCompilerModal from '../components/CodeCompilerModal';
+import { useAuth } from '../context/AuthContext';
 
 export default function PracticePage() {
+  const { user, isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialHeadingFilter = searchParams.get('heading') || 'all';
 
@@ -30,6 +32,14 @@ export default function PracticePage() {
     .catch(err => console.error('Error loading practice page:', err))
     .finally(() => setLoading(false));
   }, []);
+
+  const totalProblemsCount = problems.length;
+  const solvedCount = user?.solvedProblems?.length || 0;
+  const progressPercent = totalProblemsCount > 0 ? Math.round((solvedCount / totalProblemsCount) * 100) : 0;
+
+  const easySolved = problems.filter(p => p.difficulty === 'Easy' && user?.solvedProblems?.includes(p.id)).length;
+  const mediumSolved = problems.filter(p => p.difficulty === 'Medium' && user?.solvedProblems?.includes(p.id)).length;
+  const hardSolved = problems.filter(p => p.difficulty === 'Hard' && user?.solvedProblems?.includes(p.id)).length;
 
   const filteredProblems = problems.filter(p => {
     const matchesHeading = selectedHeading === 'all' || p.headingId === selectedHeading;
@@ -57,16 +67,58 @@ export default function PracticePage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
-      {/* Header */}
-      <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/30">
-          <Terminal className="w-3.5 h-3.5" />
-          <span>Practice Hub</span>
+      {/* Header & Progress Stats Banner */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        
+        {/* Title */}
+        <div className="space-y-3 lg:col-span-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/30">
+            <Terminal className="w-3.5 h-3.5" />
+            <span>Practice Hub & Compiler</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">Coding Practice Problems</h1>
+          <p className="text-sm text-slate-400 max-w-2xl">
+            Sharpen your problem-solving skills with interactive execution. Earn green solved ticks ✓ and build daily coding streaks 🔥!
+          </p>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white">Coding Practice Problems</h1>
-        <p className="text-sm text-slate-400 max-w-2xl">
-          Sharpen your problem-solving skills with curated LeetCode challenges and custom problems organized into creator-defined sections.
-        </p>
+
+        {/* Progress & Streak Card */}
+        <div className="glass-card p-5 rounded-2xl border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                <Flame className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="text-xs text-slate-400 font-medium">Daily Streak</div>
+                <div className="text-lg font-black text-amber-300">{user?.streak || 1} {user?.streak === 1 ? 'Day' : 'Days'} 🔥</div>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-xs text-slate-400 font-medium">Solved Progress</div>
+              <div className="text-lg font-black text-emerald-400 flex items-center gap-1 justify-end">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{solvedCount} / {totalProblemsCount}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="space-y-1.5">
+            <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 via-brand-500 to-amber-500 transition-all duration-500"
+                style={{ width: `${Math.min(progressPercent, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] font-mono text-slate-400 font-semibold">
+              <span>{progressPercent}% Solved</span>
+              <span>Easy: {easySolved} | Med: {mediumSolved} | Hard: {hardSolved}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Search & Filter Toolbar */}

@@ -6,7 +6,23 @@
       "password_hash": "$2a$10$8jLo5VZ6pKTA09OcO4MbT.MDOhb1sUZMEpOGzChHwoqCcxgDF47Ve",
       "name": "Creator Admin",
       "role": "admin",
-      "created_at": "2026-09-19T00:53:26.039Z"
+      "created_at": "2026-09-19T00:53:26.039Z",
+      "streak": 1,
+      "lastActiveDate": "2026-09-20",
+      "solvedProblems": []
+    },
+    {
+      "id": "usr_1789864879452_n0yq",
+      "username": "test_user_1789864879386",
+      "password_hash": "$2a$10$oTQDuF6En4aKF51Cq8VvYO.rHwVz7ZisHMO0CE0YyGqwlQI69K09i",
+      "name": "Streak Tester",
+      "role": "user",
+      "streak": 1,
+      "lastActiveDate": "2026-09-20",
+      "solvedProblems": [
+        "prob_3"
+      ],
+      "created_at": "2026-09-20T00:41:19.452Z"
     }
   ],
   "practice_sections": [

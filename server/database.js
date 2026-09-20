@@ -349,6 +349,13 @@ class Database {
             this.data[key] = initial[key];
           }
         }
+        // Ensure user fields exist
+        const todayStr = new Date().toISOString().split('T')[0];
+        (this.data.users || []).forEach(u => {
+          if (u.streak === undefined) u.streak = 1;
+          if (!u.lastActiveDate) u.lastActiveDate = todayStr;
+          if (!Array.isArray(u.solvedProblems)) u.solvedProblems = [];
+        });
       } catch (err) {
         console.error('Error reading db.json, creating new database file:', err);
         this.data = getInitialData();
@@ -376,6 +383,70 @@ class Database {
 
   findUserById(id) {
     return this.data.users.find(u => u.id === id);
+  }
+
+  registerUser({ username, password, name }) {
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(password, salt);
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const newUser = {
+      id: `usr_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      username: username.trim(),
+      password_hash: passwordHash,
+      name: name ? name.trim() : username.trim(),
+      role: 'user',
+      streak: 1,
+      lastActiveDate: todayStr,
+      solvedProblems: [],
+      created_at: new Date().toISOString()
+    };
+
+    this.data.users.push(newUser);
+    this.save();
+    return newUser;
+  }
+
+  updateUserStreak(id) {
+    const user = this.findUserById(id);
+    if (!user) return null;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayDate = new Date(todayStr);
+    const lastDate = new Date(user.lastActiveDate || todayStr);
+
+    const diffTime = Math.abs(todayDate - lastDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (user.lastActiveDate === todayStr) {
+      // Already active today, streak remains same
+    } else if (diffDays === 1) {
+      // Active yesterday, increment streak
+      user.streak = (user.streak || 0) + 1;
+    } else if (diffDays > 1) {
+      // Missed a day or more, reset streak to 1
+      user.streak = 1;
+    }
+    user.lastActiveDate = todayStr;
+    this.save();
+    return user;
+  }
+
+  markProblemSolved(userId, problemId) {
+    const user = this.findUserById(userId);
+    if (!user) return null;
+
+    if (!Array.isArray(user.solvedProblems)) {
+      user.solvedProblems = [];
+    }
+
+    if (!user.solvedProblems.includes(problemId)) {
+      user.solvedProblems.push(problemId);
+    }
+
+    this.updateUserStreak(userId);
+    this.save();
+    return user;
   }
 
   updateUserPassword(id, newHash) {

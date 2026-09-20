@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Code2, BookOpen, Terminal, User, Menu, X, Sparkles } from 'lucide-react';
+import { Code2, BookOpen, Terminal, User, Menu, X, Sparkles, Flame, LogIn, LogOut, CheckCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 
 export default function Header() {
   const location = useLocation();
+  const { user, logout, isAuthenticated } = useAuth();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
 
   const navLinks = [
     { name: 'Home', path: '/', icon: Code2 },
@@ -16,6 +22,11 @@ export default function Header() {
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
+  };
+
+  const openAuth = (mode = 'login') => {
+    setAuthMode(mode);
+    setAuthModalOpen(true);
   };
 
   return (
@@ -58,15 +69,75 @@ export default function Header() {
         </nav>
 
         {/* Right Action Bar */}
-        <div className="flex items-center gap-3">
-          {/* Practice Challenge Quick Link */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          
+          {/* Daily Streak Badge */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold shadow-sm animate-pulse">
+              <Flame className="w-4 h-4 fill-amber-400 text-amber-500" />
+              <span>{user?.streak || 1} {user?.streak === 1 ? 'Day' : 'Days'} Streak</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => openAuth('register')}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all"
+            >
+              <Flame className="w-4 h-4 text-amber-400" />
+              <span>Start Streak 🔥</span>
+            </button>
+          )}
+
+          {/* Today's Challenge Quick Link */}
           <Link
             to="/practice"
-            className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium hover:scale-105 transition-transform"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-500/20 to-purple-500/20 border border-brand-500/30 text-brand-300 text-xs font-medium hover:scale-105 transition-transform"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-400" />
             <span>Today's Challenge</span>
           </Link>
+
+          {/* User Account / Auth Actions */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 text-white font-bold flex items-center justify-center text-[10px] uppercase">
+                  {user?.name ? user.name[0] : (user?.username ? user.username[0] : 'U')}
+                </div>
+                <span className="font-semibold text-slate-200 hidden sm:inline max-w-[100px] truncate">
+                  {user?.name || user?.username}
+                </span>
+                {user?.solvedProblems && user.solvedProblems.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold flex items-center gap-0.5">
+                    <CheckCircle className="w-3 h-3" />
+                    {user.solvedProblems.length}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={logout}
+                className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 transition-colors"
+                title="Log Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => openAuth('login')}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors flex items-center gap-1"
+              >
+                <LogIn className="w-3.5 h-3.5 text-slate-400" />
+                <span>Log In</span>
+              </button>
+              <button
+                onClick={() => openAuth('register')}
+                className="hidden sm:flex px-3.5 py-1.5 rounded-xl gradient-button text-white text-xs font-bold transition-all shadow-sm"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -103,6 +174,13 @@ export default function Header() {
           })}
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
+      />
     </header>
   );
 }

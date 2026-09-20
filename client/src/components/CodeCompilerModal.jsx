@@ -6,8 +6,12 @@ import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { X, Play, RefreshCw, CheckCircle, ExternalLink, Code2, AlertTriangle, Sparkles, Terminal, Check, XCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+import { useAuth } from '../context/AuthContext';
+
 export default function CodeCompilerModal({ problem, onClose }) {
   if (!problem) return null;
+
+  const { markProblemAsSolved } = useAuth();
 
   // Selected language state
   const [selectedLang, setSelectedLang] = useState(problem.compilerLang || 'python');
@@ -114,6 +118,9 @@ export default function CodeCompilerModal({ problem, onClose }) {
       setConsoleOutput(combinedLogs);
 
       if (data.allPassed) {
+        if (problem?.id && markProblemAsSolved) {
+          markProblemAsSolved(problem.id);
+        }
         try {
           confetti({
             particleCount: 70,
