@@ -10,6 +10,8 @@ import learnRoutes from './routes/learnRoutes.js';
 import practiceRoutes from './routes/practiceRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
+import { db } from './database.js';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,26 +36,22 @@ app.use('/api/admin', uploadRoutes);
 
 // Direct shortcut route for Today's Challenge
 app.get('/api/todays-challenge', (req, res) => {
-  import('./database.js').then(({ db }) => {
-    const problem = db.getTodaysChallenge();
-    if (!problem) return res.status(404).json({ error: 'No challenge set' });
-    const sections = db.getSections();
-    const sec = sections.find(s => s.id === problem.headingId);
-    res.json({ ...problem, headingName: sec ? sec.name : 'Practice' });
-  });
+  const problem = db.getTodaysChallenge();
+  if (!problem) return res.status(404).json({ error: 'No challenge set' });
+  const sections = db.getSections();
+  const sec = sections.find(s => s.id === problem.headingId);
+  res.json({ ...problem, headingName: sec ? sec.name : 'Practice' });
 });
 
 // General stats endpoint for Admin Dashboard
 app.get('/api/admin/stats', (req, res) => {
-  import('./database.js').then(({ db }) => {
-    res.json({
-      topicsCount: db.getTopics().length,
-      problemsCount: db.getProblems().length,
-      sectionsCount: db.getSections().length,
-      activeSectionsCount: db.getActiveSections().length,
-      mediaCount: db.getMediaFiles().length,
-      todaysChallenge: db.getTodaysChallenge()
-    });
+  res.json({
+    topicsCount: db.getTopics().length,
+    problemsCount: db.getProblems().length,
+    sectionsCount: db.getSections().length,
+    activeSectionsCount: db.getActiveSections().length,
+    mediaCount: db.getMediaFiles().length,
+    todaysChallenge: db.getTodaysChallenge()
   });
 });
 
