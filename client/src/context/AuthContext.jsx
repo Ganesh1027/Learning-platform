@@ -94,6 +94,10 @@ export const AuthProvider = ({ children }) => {
       return data.user;
     } catch (err) {
       console.error('Google Auth Error:', err);
+      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
+        const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'your domain';
+        throw new Error(`Firebase Domain Authorization Required: Add '${currentDomain}' in Firebase Console -> Authentication -> Settings -> Authorized Domains. (You can also sign in below with Email/Username!)`);
+      }
       throw new Error(err.message || 'Google Sign-In failed');
     }
   };
