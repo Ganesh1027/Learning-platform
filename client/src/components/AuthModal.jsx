@@ -27,7 +27,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
       } else {
         await register(username, password, name);
       }
-      onClose();
+      onClose(); // Close modal on success so user can use website
     } catch (err) {
       setError(err.message || 'Authentication failed');
     } finally {
@@ -41,7 +41,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
     try {
       await loginWithGoogle();
-      onClose();
+      onClose(); // Close modal on success so user can use website
     } catch (err) {
       setError(err.message || 'Google Sign-In failed');
     } finally {
@@ -50,30 +50,35 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-[100] overflow-y-auto p-4 sm:p-6 flex items-start justify-center bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-md bg-dark-800 border border-slate-700/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-4 my-8 sm:my-12">
+    <div className="fixed inset-0 z-[100] p-4 flex items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      
+      {/* Click Outside Backdrop to Close */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      {/* Centered Modal Card */}
+      <div className="relative w-full max-w-sm sm:max-w-md bg-dark-800 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto space-y-3.5 z-10 custom-scrollbar">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/50"
+          className="absolute top-3.5 right-3.5 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/50"
           aria-label="Close modal"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Modal Header */}
-        <div className="text-center space-y-1.5 pt-1">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-brand-500 to-purple-500 flex items-center justify-center mx-auto shadow-lg shadow-brand-500/20">
-            <Flame className="w-7 h-7 text-white animate-bounce" />
+        <div className="text-center space-y-1">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-brand-500 to-purple-500 flex items-center justify-center mx-auto shadow-md shadow-brand-500/20">
+            <Flame className="w-6 h-6 text-white animate-pulse" />
           </div>
-          <h2 className="text-xl font-extrabold text-white">
-            {mode === 'login' ? 'Welcome Back, Learner!' : 'Join CodingHub & Track Progress'}
+          <h2 className="text-lg font-extrabold text-white">
+            {mode === 'login' ? 'Welcome Back!' : 'Create Your Account'}
           </h2>
-          <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+          <p className="text-[11px] text-slate-400">
             {mode === 'login'
-              ? 'Log in to sync your streak 🔥 and solved problem status.'
-              : 'Create an account to build daily coding habits and earn solved ticks ✓.'}
+              ? 'Log in to sync your daily streak 🔥 and solved problems.'
+              : 'Sign up to build coding habits and earn solved checkmarks ✓.'}
           </p>
         </div>
 
@@ -82,21 +87,21 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <button
             type="button"
             onClick={() => { setMode('login'); setError(''); }}
-            className={`py-2 rounded-lg transition-all ${mode === 'login' ? 'bg-brand-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            className={`py-1.5 rounded-lg transition-all ${mode === 'login' ? 'bg-brand-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
           >
             Log In
           </button>
           <button
             type="button"
             onClick={() => { setMode('register'); setError(''); }}
-            className={`py-2 rounded-lg transition-all ${mode === 'register' ? 'bg-brand-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            className={`py-1.5 rounded-lg transition-all ${mode === 'register' ? 'bg-brand-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
           >
             Create Account
           </button>
         </div>
 
         {/* Google Sign-In Option */}
-        <div className="pt-1">
+        <div>
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -114,14 +119,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         </div>
 
         {/* Divider */}
-        <div className="relative flex items-center justify-center my-1">
+        <div className="relative flex items-center justify-center my-0.5">
           <div className="border-t border-slate-800 w-full" />
-          <span className="bg-dark-800 px-3 text-[10px] uppercase font-bold text-slate-500 shrink-0">OR with Email / Username</span>
+          <span className="bg-dark-800 px-3 text-[10px] uppercase font-bold text-slate-500 shrink-0">OR with Email</span>
           <div className="border-t border-slate-800 w-full" />
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 font-medium">
+          <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 font-medium">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{error}</span>
           </div>
@@ -131,47 +136,47 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           {mode === 'register' && (
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Display Name</label>
+              <label className="font-semibold text-slate-300 text-[11px]">Display Name</label>
               <div className="relative">
-                <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                <User className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Alex Code"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-xs"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300">Username or Email</label>
+            <label className="font-semibold text-slate-300 text-[11px]">Username or Email</label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter username or email"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-xs"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300">Password</label>
+            <label className="font-semibold text-slate-300 text-[11px]">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <Lock className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all text-xs"
               />
             </div>
           </div>
@@ -179,10 +184,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl gradient-button text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 mt-2 hover:opacity-90 active:scale-[0.99]"
+            className="w-full py-2.5 rounded-xl gradient-button text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 mt-1 hover:opacity-90 active:scale-[0.99]"
           >
             {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-            <span>{loading ? 'Please wait...' : mode === 'login' ? 'Log In with Email' : 'Register & Start Streak'}</span>
+            <span>{loading ? 'Please wait...' : mode === 'login' ? 'Log In to Account' : 'Register Account'}</span>
           </button>
         </form>
 
