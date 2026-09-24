@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { X, User, Lock, Flame, Mail, LogIn, UserPlus, AlertCircle } from 'lucide-react';
 
@@ -48,14 +49,15 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 flex items-start sm:items-center justify-center pt-8 sm:pt-12 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-dark-800 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 sm:p-7 shadow-2xl relative space-y-4 my-auto">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] overflow-y-auto p-4 sm:p-6 flex items-start justify-center bg-slate-950/85 backdrop-blur-md animate-fadeIn">
+      <div className="relative w-full max-w-md bg-dark-800 border border-slate-700/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-4 my-8 sm:my-12">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700/50"
+          aria-label="Close modal"
         >
           <X className="w-5 h-5" />
         </button>
@@ -68,7 +70,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <h2 className="text-xl font-extrabold text-white">
             {mode === 'login' ? 'Welcome Back, Learner!' : 'Join CodingHub & Track Progress'}
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
             {mode === 'login'
               ? 'Log in to sync your streak 🔥 and solved problem status.'
               : 'Create an account to build daily coding habits and earn solved ticks ✓.'}
@@ -99,7 +101,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2.5 shadow-sm hover:scale-[1.01]"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2.5 shadow-sm hover:scale-[1.01] active:scale-[0.99]"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -138,7 +140,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Alex Code"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
                 />
               </div>
             </div>
@@ -154,7 +156,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter username or email"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
               />
             </div>
           </div>
@@ -169,7 +171,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-dark-900 border border-slate-700 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
               />
             </div>
           </div>
@@ -177,7 +179,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl gradient-button text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 rounded-xl gradient-button text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 mt-2 hover:opacity-90 active:scale-[0.99]"
           >
             {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
             <span>{loading ? 'Please wait...' : mode === 'login' ? 'Log In with Email' : 'Register & Start Streak'}</span>
@@ -187,4 +189,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? ReactDOM.createPortal(modalContent, document.body) : null;
 }
