@@ -75,6 +75,7 @@ app.get('/api/db-status', (req, res) => {
     status: 'ok',
     isMongoConnected: db.isMongoConnected,
     dbMode: db.isMongoConnected ? (process.env.MONGODB_URI?.includes('127.0.0.1') ? 'Local MongoDB' : 'Cloud MongoDB Atlas') : 'Ephemeral Disk (Needs MONGODB_URI on Render)',
+    mongoLastError: db.mongoLastError,
     problemsCount: db.getProblems().length,
     topicsCount: db.getTopics().length,
     sectionsCount: db.getSections().length,

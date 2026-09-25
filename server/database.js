@@ -108,6 +108,7 @@ class Database {
   constructor() {
     this.data = null;
     this.isMongoConnected = false;
+    this.mongoLastError = null;
     this.init();
     this.connectMongo();
   }
@@ -116,14 +117,16 @@ class Database {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/learning-platform';
     try {
       await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 5000
+        serverSelectionTimeoutMS: 10000
       });
       this.isMongoConnected = true;
+      this.mongoLastError = null;
       console.log(`🍃 Connected to MongoDB successfully (${mongoUri.includes('127.0.0.1') ? 'Local MongoDB' : 'Cloud MongoDB'})`);
       await this.loadFromMongo();
     } catch (err) {
       console.warn('⚠️ MongoDB connection deferred/offline, using local JSON database:', err.message);
       this.isMongoConnected = false;
+      this.mongoLastError = err.message;
     }
   }
 
