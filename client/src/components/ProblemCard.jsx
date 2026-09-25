@@ -78,7 +78,43 @@ export default function ProblemCard({ problem, onSelectProblem }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
+      <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 sm:pt-0">
+        {problem.youtubeUrl && (
+          <a
+            href={problem.youtubeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-medium hover:bg-red-500/20 transition-all"
+            title="Watch Solution Video"
+          >
+            <span>YouTube</span>
+          </a>
+        )}
+
+        {problem.instagramUrl && (
+          <a
+            href={problem.instagramUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20 text-xs font-medium hover:bg-pink-500/20 transition-all"
+            title="Watch Solution Reel"
+          >
+            <span>Reel</span>
+          </a>
+        )}
+
+        {problem.pdfUrl && (
+          <a
+            href={problem.pdfUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 transition-all"
+            title="Read PDF Notes"
+          >
+            <span>PDF Notes</span>
+          </a>
+        )}
+
         {type === 'leetcode' ? (
           <a
             href={leetcodeUrl || `https://leetcode.com/problemset/all/?search=${encodeURIComponent(title)}`}

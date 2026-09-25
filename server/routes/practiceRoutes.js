@@ -191,7 +191,7 @@ router.get('/problems/:idOrSlug', (req, res) => {
 
 // Admin: Add practice problem
 router.post('/admin/practice-problems', authMiddleware, (req, res) => {
-  const { title, type, leetcodeNumber, leetcodeUrl, difficulty, topic, headingId, learnTopicId, statement, constraints, examples, starterCode, compilerLang, isTodaysChallenge } = req.body;
+  const { title, type, leetcodeNumber, leetcodeUrl, difficulty, topic, headingId, learnTopicId, statement, constraints, examples, starterCode, compilerLang, youtubeUrl, instagramUrl, pdfUrl, pdfName, notes, isTodaysChallenge } = req.body;
 
   if (!title || !headingId) {
     return res.status(400).json({ error: 'Title and Practice Section Heading are required' });
@@ -211,6 +211,11 @@ router.post('/admin/practice-problems', authMiddleware, (req, res) => {
     examples,
     starterCode,
     compilerLang,
+    youtubeUrl,
+    instagramUrl,
+    pdfUrl,
+    pdfName,
+    notes,
     isTodaysChallenge
   });
 

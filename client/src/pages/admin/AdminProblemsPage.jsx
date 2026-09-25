@@ -26,11 +26,17 @@ export default function AdminProblemsPage() {
     constraints: '',
     starterCodeJs: '',
     starterCodePy: '',
+    youtubeUrl: '',
+    instagramUrl: '',
+    pdfUrl: '',
+    pdfName: '',
+    notes: '',
     isTodaysChallenge: false,
     examples: [
       { input: 'n = 5', rawInput: '5', output: '0 2 4' }
     ]
   });
+  const [uploadingPdf, setUploadingPdf] = useState(false);
   const [error, setError] = useState('');
 
   const fetchProblemsData = () => {
@@ -73,6 +79,11 @@ export default function AdminProblemsPage() {
         constraints: problemToEdit.constraints || '',
         starterCodeJs: jsCode,
         starterCodePy: pyCode,
+        youtubeUrl: problemToEdit.youtubeUrl || '',
+        instagramUrl: problemToEdit.instagramUrl || '',
+        pdfUrl: problemToEdit.pdfUrl || '',
+        pdfName: problemToEdit.pdfName || '',
+        notes: problemToEdit.notes || '',
         isTodaysChallenge: Boolean(problemToEdit.isTodaysChallenge),
         examples: Array.isArray(problemToEdit.examples) && problemToEdit.examples.length > 0 ? problemToEdit.examples : [
           { input: 'n = 5', rawInput: '5', output: '0 2 4' }
@@ -93,6 +104,11 @@ export default function AdminProblemsPage() {
         constraints: '',
         starterCodeJs: '',
         starterCodePy: '',
+        youtubeUrl: '',
+        instagramUrl: '',
+        pdfUrl: '',
+        pdfName: '',
+        notes: '',
         isTodaysChallenge: false,
         examples: [
           { input: 'n = 5', rawInput: '5', output: '0 2 4' }
@@ -119,6 +135,33 @@ export default function AdminProblemsPage() {
       ...prev,
       examples: prev.examples.filter((_, i) => i !== index)
     }));
+  };
+
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const data = new FormData();
+    data.append('file', file);
+    setUploadingPdf(true);
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: data
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Upload failed');
+      setFormData(prev => ({ ...prev, pdfUrl: json.url, pdfName: file.name }));
+    } catch (err) {
+      alert(err.message || 'PDF upload failed');
+    } finally {
+      setUploadingPdf(false);
+    }
   };
 
   const handleTestCaseChange = (index, field, value) => {
@@ -603,6 +646,65 @@ export default function AdminProblemsPage() {
                       onChange={(e) => setFormData({ ...formData, starterCodeJs: e.target.value })}
                       placeholder={"function even_integers(n) {\n  // Write your solution here\n  \n}"}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* PROBLEM SOLUTION MEDIA & NOTES (YouTube, Instagram, PDF Notes, Notes) */}
+              <div className="p-4 rounded-xl bg-slate-900/90 border border-blue-500/30 space-y-4">
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4 text-blue-400" />
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider">Solution Media & Notes (YouTube, Instagram, PDF)</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-red-400 text-xs">YouTube Solution Video URL</label>
+                    <input
+                      type="url"
+                      value={formData.youtubeUrl}
+                      onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-semibold text-pink-400 text-xs">Instagram Reel Solution URL</label>
+                    <input
+                      type="url"
+                      value={formData.instagramUrl}
+                      onChange={(e) => setFormData({ ...formData, instagramUrl: e.target.value })}
+                      placeholder="https://www.instagram.com/reel/..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-blue-400 text-xs">PDF Notes / Editorial Document</label>
+                    <div className="flex items-center gap-2">
+                      <label className="px-3 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-semibold text-xs cursor-pointer transition-colors flex items-center gap-1.5 border border-blue-500/40">
+                        <span>{uploadingPdf ? 'Uploading...' : 'Upload PDF'}</span>
+                        <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
+                      </label>
+                      {formData.pdfUrl && (
+                        <span className="text-xs text-emerald-400 truncate max-w-[200px]" title={formData.pdfName || formData.pdfUrl}>
+                          ✓ {formData.pdfName || 'PDF Uploaded'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-semibold text-slate-300 text-xs">Solution / Editorial Notes</label>
+                    <textarea
+                      rows="2"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      placeholder="Key takeaways, time complexity analysis, or approach notes..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
                     />
                   </div>
                 </div>

@@ -1,12 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Youtube, Instagram, FileText, ArrowRight, Tag } from 'lucide-react';
 
 export default function ContentCard({ topic, onOpenPdf }) {
+  const navigate = useNavigate();
   const { title, slug, categorySlug, description, thumbnailUrl, youtubeUrl, instagramUrl, pdfUrl, pdfName, tags } = topic;
 
+  const handleCardClick = () => {
+    navigate(`/learn/${categorySlug || 'topic'}/${slug}`);
+  };
+
   return (
-    <div className="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-800">
+    <div
+      onClick={handleCardClick}
+      className="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-800 cursor-pointer transition-all duration-300 hover:border-brand-500/50"
+    >
       {/* Card Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden bg-slate-800">
         <img
@@ -25,9 +33,9 @@ export default function ContentCard({ topic, onOpenPdf }) {
 
       {/* Card Content Body */}
       <div className="p-5 flex flex-col flex-1">
-        <Link to={`/learn/${categorySlug || 'topic'}/${slug}`} className="group-hover:text-brand-300 transition-colors">
-          <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{title}</h3>
-        </Link>
+        <h3 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-brand-300 transition-colors">
+          {title}
+        </h3>
 
         <p className="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">
           {description}
@@ -45,7 +53,7 @@ export default function ContentCard({ topic, onOpenPdf }) {
           </div>
         )}
 
-        {/* Available Resources Toolbar - PRD Section 5: ONLY show when existing! */}
+        {/* Available Resources Toolbar */}
         <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             {/* YouTube Badge */}
@@ -54,6 +62,7 @@ export default function ContentCard({ topic, onOpenPdf }) {
                 href={youtubeUrl}
                 target="_blank"
                 rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-medium hover:bg-red-500/20 hover:scale-105 transition-all"
                 title="Watch YouTube Tutorial"
               >
@@ -68,6 +77,7 @@ export default function ContentCard({ topic, onOpenPdf }) {
                 href={instagramUrl}
                 target="_blank"
                 rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20 text-xs font-medium hover:bg-pink-500/20 hover:scale-105 transition-all"
                 title="View Instagram Reel"
               >
@@ -79,7 +89,10 @@ export default function ContentCard({ topic, onOpenPdf }) {
             {/* PDF Notes Badge */}
             {pdfUrl && (
               <button
-                onClick={() => onOpenPdf ? onOpenPdf(pdfUrl, pdfName || title) : window.open(pdfUrl, '_blank')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenPdf ? onOpenPdf(pdfUrl, pdfName || title) : window.open(pdfUrl, '_blank');
+                }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-medium hover:bg-blue-500/20 hover:scale-105 transition-all"
                 title="Read PDF Notes"
               >
@@ -89,13 +102,12 @@ export default function ContentCard({ topic, onOpenPdf }) {
             )}
           </div>
 
-          <Link
-            to={`/learn/${categorySlug || 'topic'}/${slug}`}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          <div
+            className="p-1.5 rounded-lg text-slate-400 group-hover:text-brand-300 group-hover:bg-slate-800 transition-colors"
             title="View Topic Details"
           >
             <ArrowRight className="w-4 h-4" />
-          </Link>
+          </div>
         </div>
       </div>
     </div>
