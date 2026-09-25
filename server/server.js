@@ -61,7 +61,27 @@ app.get('/ping', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    isMongoConnected: db.isMongoConnected,
+    dbMode: db.isMongoConnected ? (process.env.MONGODB_URI?.includes('127.0.0.1') ? 'Local MongoDB' : 'Cloud MongoDB Atlas') : 'Ephemeral Disk (Needs MONGODB_URI on Render)',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/db-status', (req, res) => {
+  res.json({
+    status: 'ok',
+    isMongoConnected: db.isMongoConnected,
+    dbMode: db.isMongoConnected ? (process.env.MONGODB_URI?.includes('127.0.0.1') ? 'Local MongoDB' : 'Cloud MongoDB Atlas') : 'Ephemeral Disk (Needs MONGODB_URI on Render)',
+    problemsCount: db.getProblems().length,
+    topicsCount: db.getTopics().length,
+    sectionsCount: db.getSections().length,
+    usersCount: db.data?.users?.length || 0,
+    mongoUriSet: Boolean(process.env.MONGODB_URI),
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Serve frontend dist build if present

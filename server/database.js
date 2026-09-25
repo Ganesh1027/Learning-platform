@@ -139,16 +139,36 @@ class Database {
 
       if (dbProblems.length > 0) {
         this.data.practice_problems = dbProblems.map(p => ({ ...p, created_at: p.created_at ? new Date(p.created_at).toISOString() : new Date().toISOString() }));
+      } else if (this.data.practice_problems.length > 0) {
+        for (const p of this.data.practice_problems) {
+          await Problem.findOneAndUpdate({ id: p.id }, p, { upsert: true });
+        }
       }
+
       if (dbTopics.length > 0) {
         this.data.learn_topics = dbTopics.map(t => ({ ...t, created_at: t.created_at ? new Date(t.created_at).toISOString() : new Date().toISOString() }));
+      } else if (this.data.learn_topics.length > 0) {
+        for (const t of this.data.learn_topics) {
+          await Topic.findOneAndUpdate({ id: t.id }, t, { upsert: true });
+        }
       }
+
       if (dbSections.length > 0) {
         this.data.practice_sections = dbSections.map(s => ({ ...s, created_at: s.created_at ? new Date(s.created_at).toISOString() : new Date().toISOString() }));
+      } else if (this.data.practice_sections.length > 0) {
+        for (const s of this.data.practice_sections) {
+          await Section.findOneAndUpdate({ id: s.id }, s, { upsert: true });
+        }
       }
+
       if (dbUsers.length > 0) {
         this.data.users = dbUsers.map(u => ({ ...u, created_at: u.created_at ? new Date(u.created_at).toISOString() : new Date().toISOString() }));
+      } else if (this.data.users.length > 0) {
+        for (const u of this.data.users) {
+          await User.findOneAndUpdate({ id: u.id }, u, { upsert: true });
+        }
       }
+
       if (dbMedia.length > 0) {
         this.data.media_files = dbMedia.map(m => ({ ...m, created_at: m.created_at ? new Date(m.created_at).toISOString() : new Date().toISOString() }));
       }
