@@ -55,9 +55,13 @@ app.get('/api/admin/stats', (req, res) => {
   });
 });
 
-// Health check
+// Keep-alive ping routes to prevent Render spin-downs
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
+
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
 // Serve frontend dist build if present
